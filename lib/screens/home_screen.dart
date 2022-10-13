@@ -2,7 +2,7 @@ import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/screens/views/file_view.dart';
+import 'package:my_video_player/screens/views/file_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
