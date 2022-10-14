@@ -32,6 +32,9 @@ class _VideoScreenState extends State<VideoScreen> {
   double _playbackSpeed = SharedPrefService.getPlaybackSpeed();
 
   // TODO safe user setting to local storage
+  // TODO change logo
+  // TODO upload to playstore
+  
 
   @override
   void initState() {
@@ -92,7 +95,7 @@ class _VideoScreenState extends State<VideoScreen> {
                     children: [
                       SizedBox.expand(
                         child: FittedBox(
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           child: SizedBox(
                             width: _controller.value.size.width,
                             height: _controller.value.size.height,
