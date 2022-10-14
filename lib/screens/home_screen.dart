@@ -1,8 +1,8 @@
 import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:my_video_player/screens/views/list_of_file_view.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:my_video_player/screens/views/file_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Directory> file = [];
+  List<Directory> files = [];
 
   @override
   void initState() {
@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _listOfFiles() async {
     var directories = (await getExternalStorageDirectories())!;
-    file = directories.map((Directory e) {
+    files = directories.map((Directory e) {
       final List<String> splitedPath = e.path.split("/");
       return Directory(splitedPath
           .sublist(0, splitedPath.indexWhere((element) => element == "Android"))
@@ -39,8 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(file.toString());
-    return FileView(file: file);
+    print(files);
+    return ListOfFileView(
+      files: files,
+    );
 
     return FileManager(
       controller: FileManagerController(),
