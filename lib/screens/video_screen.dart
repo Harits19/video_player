@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:my_video_player/screens/constans/color_constan.dart';
 import 'package:my_video_player/screens/constans/number_constan.dart';
 import 'package:my_video_player/screens/views/icon_shadow_view.dart';
 import 'package:my_video_player/screens/views/new_ink_well.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
 import 'package:my_video_player/utils/double_util.dart';
+import 'package:my_video_player/utils/duration_util.dart';
 import 'package:my_video_player/utils/file_util.dart';
 import 'package:my_video_player/utils/orientation_util.dart';
 import 'package:my_video_player/utils/overlay_util.dart';
@@ -38,11 +40,14 @@ class _VideoScreenState extends State<VideoScreen> {
     _controller.initialize().then(
       (value) async {
         await _controller.setPlaybackSpeed(_playbackSpeed);
+        final useLandscape = _controller.value.aspectRatio > 1;
+        if (useLandscape) {
+          await OrientationUtil.landscapeOrientation();
+        }
         _controller.play();
       },
     );
     _initTimer();
-    OrientationUtil.landscapeOrientation();
   }
 
   @override
@@ -83,34 +88,40 @@ class _VideoScreenState extends State<VideoScreen> {
             child: ValueListenableBuilder(
                 valueListenable: _controller,
                 builder: (context, videoVal, child) {
-                  return AspectRatio(
-                    aspectRatio: videoVal.aspectRatio,
-                    child: Stack(
-                      children: [
-                        VideoPlayer(
-                          _controller,
-                        ),
-                        Positioned.fill(
-                          child: AnimatedOpacity(
-                            opacity: _showOverlay ? 1 : 0,
-                            duration: kAnimationDuration,
-                            child: Column(
-                              children: [
-                                _TopGradientWidget(widget: widget),
-                                _VideoControllerWidget(
-                                  controller: _controller,
-                                  videoVal: videoVal,
-                                ),
-                                _BottomGradientWidget(
-                                  playbackSpeed: _playbackSpeed,
-                                  onTapSeek: _showPlaybackDialog,
-                                ),
-                              ],
-                            ),
+                  return Stack(
+                    children: [
+                      SizedBox.expand(
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: SizedBox(
+                            width: _controller.value.size.width,
+                            height: _controller.value.size.height,
+                            child: VideoPlayer(_controller),
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: AnimatedOpacity(
+                          opacity: _showOverlay ? 1 : 0,
+                          duration: kAnimationDuration,
+                          child: Column(
+                            children: [
+                              _TopGradientWidget(widget: widget),
+                              _VideoControllerWidget(
+                                controller: _controller,
+                                videoVal: videoVal,
+                              ),
+                              _BottomGradientWidget(
+                                videoValue: videoVal,
+                                controller: _controller,
+                                playbackSpeed: _playbackSpeed,
+                                onTapSeek: _showPlaybackDialog,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
                   );
                 }),
           ),
@@ -169,17 +180,46 @@ class _BottomGradientWidget extends StatelessWidget {
     Key? key,
     required this.playbackSpeed,
     required this.onTapSeek,
+    required this.videoValue,
+    required this.controller,
   }) : super(key: key);
 
   final double playbackSpeed;
   final VoidCallback onTapSeek;
+  final VideoPlayerValue videoValue;
+  final VideoPlayerController controller;
 
   @override
   Widget build(BuildContext context) {
+    final position = videoValue.position;
+    final duration = videoValue.duration;
     return _GradientView(
       directionTo: DirectionTo.top,
       children: [
-        const Spacer(),
+        Text(
+          position.durationToTime(),
+          style: const TextStyle(
+            color: kColorPrimaryVideoScreen,
+          ),
+        ),
+        Expanded(
+          child: Slider(
+            value: position.inSeconds.toDouble(),
+            max: duration.inSeconds.toDouble(),
+            onChanged: (val) {
+              controller.seekTo(Duration(seconds: val.toInt()));
+            },
+          ),
+        ),
+        Text(
+          duration.durationToTime(),
+          style: const TextStyle(
+            color: kColorPrimaryVideoScreen,
+          ),
+        ),
+        const SizedBox(
+          width: kS8,
+        ),
         NewInkWell(
           onTap: onTapSeek,
           child: Text(displayPlayback(playbackSpeed)),
@@ -195,7 +235,7 @@ class _BottomGradientWidget extends StatelessWidget {
               quarterTurns: isLandscape ? 1 : 0,
               child: const Icon(
                 Icons.rectangle_outlined,
-                color: Colors.white,
+                color: kColorPrimaryVideoScreen,
               ),
             ),
             onTap: () {
