@@ -3,20 +3,27 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:my_video_player/screens/video_screen.dart';
 import 'package:my_video_player/screens/views/stream_file_view.dart';
-import 'package:my_video_player/utils/file_type_utils.dart';
-import 'package:my_video_player/utils/navigation_util.dart';
+import 'package:my_video_player/utils/file_type_util.dart';
+import 'package:my_video_player/utils/nav_util.dart';
 
 class ListOfFileView extends StatelessWidget {
   const ListOfFileView({
     super.key,
     required this.files,
+    this.showParentDirectory = true,
   });
 
   final List<FileSystemEntity> files;
+  final bool showParentDirectory;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: showParentDirectory
+            ? Text(files.isEmpty ? '' : files.first.parent.path)
+            : null,
+      ),
       body: SafeArea(
         child: files.isEmpty
             ? const Center(
@@ -26,18 +33,18 @@ class ListOfFileView extends StatelessWidget {
                 children: [
                   ...files.map(
                     (e) {
-                      if (isVideo(e.path) || e is Directory) {
+                      if (FileUtil.isVideo(e.path) || e is Directory) {
                         return InkWell(
                           child: ListTile(
-                            title: Text(e.toString()),
+                            title: Text(FileUtil.getFileName(e)),
                           ),
                           onTap: () {
                             if (e is Directory) {
-                              push(context, StreamFileView(file: e));
-                            } else if (e is File && isVideo(e.path)) {
-                              push(
+                              NavUtil.push(context, StreamFileView(file: e));
+                            } else if (e is File && FileUtil.isVideo(e.path)) {
+                              NavUtil.push(
                                 context,
-                                VideoScreen(path: e.path),
+                                VideoScreen(file: e),
                               );
                             }
                           },

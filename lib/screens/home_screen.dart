@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     print(files);
     return ListOfFileView(
+      showParentDirectory: false,
       files: files,
     );
 
