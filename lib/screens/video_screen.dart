@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:my_video_player/screens/constans/number_constan.dart';
 import 'package:my_video_player/screens/views/icon_shadow_view.dart';
+import 'package:my_video_player/screens/views/new_ink_well.dart';
 import 'package:my_video_player/utils/file_type_util.dart';
 import 'package:my_video_player/utils/orientation_util.dart';
 import 'package:video_player/video_player.dart';
@@ -119,22 +120,19 @@ class _VideoScreenState extends State<VideoScreen> {
                                         directionTo: DirectionTo.right,
                                       ),
                                       space,
-                                      Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            isPlaying
-                                                ? _controller.pause()
-                                                : _controller.play();
-                                          },
-                                          customBorder: const CircleBorder(),
-                                          child: IconShadowView(
-                                            isPlaying
-                                                ? Icons.pause
-                                                : Icons.play_arrow,
-                                            color: Colors.white,
-                                            size: 56,
-                                          ),
+                                      NewInkWell(
+                                        onTap: () {
+                                          isPlaying
+                                              ? _controller.pause()
+                                              : _controller.play();
+                                        },
+                                        customBorder: const CircleBorder(),
+                                        child: IconShadowView(
+                                          isPlaying
+                                              ? Icons.pause
+                                              : Icons.play_arrow,
+                                          color: Colors.white,
+                                          size: 56,
                                         ),
                                       ),
                                       space,
@@ -158,7 +156,7 @@ class _VideoScreenState extends State<VideoScreen> {
                                       final isLandscape =
                                           MediaQuery.of(context).orientation ==
                                               Orientation.landscape;
-                                      return InkWell(
+                                      return NewInkWell(
                                         child: RotatedBox(
                                           quarterTurns: isLandscape ? 1 : 0,
                                           child: const Icon(
@@ -250,37 +248,28 @@ class _SeekWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Colors.white.withOpacity(0.1);
-
     return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onDoubleTap: onDoubleTap,
-          hoverColor: color,
-          splashColor: color,
-          focusColor: color,
-          highlightColor: color,
-          borderRadius: () {
-            final radius = Radius.circular(this.radius);
-            final left = BorderRadius.horizontal(left: radius);
-            final right = BorderRadius.horizontal(right: radius);
-            if (directionTo == DirectionTo.left) {
-              return left;
-            }
-            if (directionTo == DirectionTo.right) {
-              return right;
-            }
-          }(),
-          child: Container(
-            alignment: Alignment.center,
-            height: double.infinity,
-            width: double.infinity,
-            child: Text(
-              '${kSeekDuration.inSeconds} seconds',
-              style: const TextStyle(
-                color: Colors.white,
-              ),
+      child: NewInkWell(
+        onDoubleTap: onDoubleTap,
+        borderRadius: () {
+          final radius = Radius.circular(this.radius);
+          final left = BorderRadius.horizontal(left: radius);
+          final right = BorderRadius.horizontal(right: radius);
+          if (directionTo == DirectionTo.left) {
+            return left;
+          }
+          if (directionTo == DirectionTo.right) {
+            return right;
+          }
+        }(),
+        child: Container(
+          alignment: Alignment.center,
+          height: double.infinity,
+          width: double.infinity,
+          child: Text(
+            '${kSeekDuration.inSeconds} seconds',
+            style: const TextStyle(
+              color: Colors.white,
             ),
           ),
         ),

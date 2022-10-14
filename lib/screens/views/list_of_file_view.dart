@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:my_video_player/screens/video_screen.dart';
 import 'package:my_video_player/screens/views/stream_file_view.dart';
-import 'package:my_video_player/utils/file_type_util.dart';
+import 'package:my_video_player/utils/file_type_utils.dart';
 import 'package:my_video_player/utils/nav_util.dart';
 
 class ListOfFileView extends StatelessWidget {
