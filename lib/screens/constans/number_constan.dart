@@ -8,5 +8,6 @@ const double kS2 = 2,
     k48 = 48,
     k16 = 16,
     kMaxPlaybackSpeed = 2,
-    kMinPlaybackSpeed = kMaxPlaybackSpeed / kPlaybackDivisions;
+    kMinPlaybackSpeed = kMaxPlaybackSpeed / kPlaybackDivisions,
+    kDefaultPlaybackSpeed = 1;
 const kPlaybackDivisions = 8;

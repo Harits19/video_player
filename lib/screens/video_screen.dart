@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:my_video_player/screens/constans/number_constan.dart';
 import 'package:my_video_player/screens/views/icon_shadow_view.dart';
 import 'package:my_video_player/screens/views/new_ink_well.dart';
+import 'package:my_video_player/services/shared_pref_service.dart';
 import 'package:my_video_player/utils/double_util.dart';
 import 'package:my_video_player/utils/file_util.dart';
 import 'package:my_video_player/utils/orientation_util.dart';
+import 'package:my_video_player/utils/overlay_util.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoScreen extends StatefulWidget {
@@ -25,16 +27,18 @@ class _VideoScreenState extends State<VideoScreen> {
 
   bool _showOverlay = true;
   Timer? _timer;
-  double _playbackSpeed = 1;
+  double _playbackSpeed = SharedPrefService.getPlaybackSpeed();
 
   // TODO safe user setting to local storage
 
   @override
   void initState() {
     super.initState();
+    OverlayUtil.hideStatusBar();
     _controller.initialize().then(
-      (value) {
-        return _controller.play();
+      (value) async {
+        await _controller.setPlaybackSpeed(_playbackSpeed);
+        _controller.play();
       },
     );
     _initTimer();
@@ -68,6 +72,7 @@ class _VideoScreenState extends State<VideoScreen> {
     return WillPopScope(
       onWillPop: () async {
         await OrientationUtil.defaultOrientation();
+        await OverlayUtil.defaultOverlay();
         return true;
       },
       child: Scaffold(
@@ -143,9 +148,10 @@ class _VideoScreenState extends State<VideoScreen> {
                     min: kMinPlaybackSpeed,
                     label: displayPlayback(_playbackSpeed),
                     divisions: (kPlaybackDivisions - 1),
-                    onChanged: (val) {
+                    onChanged: (val) async {
                       _playbackSpeed = val;
                       _controller.setPlaybackSpeed(_playbackSpeed);
+                      await SharedPrefService.savePlaybackSpeed(_playbackSpeed);
                       localState(() {});
                       setState(() {});
                     }),

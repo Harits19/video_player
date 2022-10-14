@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:my_video_player/screens/home_screen.dart';
+import 'package:my_video_player/services/shared_pref_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await _initAllServices();
   runApp(const MyApp());
 }
 
@@ -17,4 +20,8 @@ class MyApp extends StatelessWidget {
       home: const HomeScreen(),
     );
   }
+}
+
+Future<void> _initAllServices() async {
+  await SharedPrefService.initPref();
 }
