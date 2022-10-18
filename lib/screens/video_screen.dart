@@ -34,7 +34,7 @@ class _VideoScreenState extends State<VideoScreen> {
   // TODO safe user setting to local storage
   // TODO change logo
   // TODO upload to playstore
-  
+  // TODO fix issue subtitle not showing
 
   @override
   void initState() {
@@ -76,7 +76,6 @@ class _VideoScreenState extends State<VideoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(_controller.value.aspectRatio);
     return WillPopScope(
       onWillPop: () async {
         await OrientationUtil.defaultOrientation();
@@ -91,17 +90,21 @@ class _VideoScreenState extends State<VideoScreen> {
             child: ValueListenableBuilder(
                 valueListenable: _controller,
                 builder: (context, videoVal, child) {
+                  print('caption ${videoVal.caption.toString()}');
                   return Stack(
                     children: [
                       SizedBox.expand(
                         child: FittedBox(
                           fit: BoxFit.contain,
                           child: SizedBox(
-                            width: _controller.value.size.width,
-                            height: _controller.value.size.height,
+                            width: videoVal.size.width,
+                            height: videoVal.size.height,
                             child: VideoPlayer(_controller),
                           ),
                         ),
+                      ),
+                      ClosedCaption(
+                        text: 'caption ${videoVal.caption.text}',
                       ),
                       Positioned.fill(
                         child: AnimatedOpacity(
