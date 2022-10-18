@@ -40,16 +40,7 @@ class _VideoScreenState extends State<VideoScreen> {
   void initState() {
     super.initState();
     OverlayUtil.hideStatusBar();
-    _controller.initialize().then(
-      (value) async {
-        await _controller.setPlaybackSpeed(_playbackSpeed);
-        final useLandscape = _controller.value.aspectRatio > 1;
-        if (useLandscape) {
-          await OrientationUtil.landscapeOrientation();
-        }
-        _controller.play();
-      },
-    );
+    _controller.initialize().then((value) => _initVideo());
     _initTimer();
   }
 
@@ -58,6 +49,15 @@ class _VideoScreenState extends State<VideoScreen> {
     super.dispose();
     _controller.dispose();
     _timer?.cancel();
+  }
+
+  void _initVideo() async {
+    await _controller.setPlaybackSpeed(_playbackSpeed);
+    final useLandscape = _controller.value.aspectRatio > 1;
+    if (useLandscape) {
+      await OrientationUtil.landscapeOrientation();
+    }
+    _controller.play();
   }
 
   void _resetTimer() {
@@ -84,6 +84,13 @@ class _VideoScreenState extends State<VideoScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.black,
+        // floatingActionButton: FloatingActionButton(onPressed: () {
+        //   NavUtil.push(
+        //       context,
+        //       Scaffold(
+        //         body: VideoPlayer(_controller),
+        //       ));
+        // }),
         body: Center(
           child: Listener(
             onPointerDown: (_) => _resetTimer(),
