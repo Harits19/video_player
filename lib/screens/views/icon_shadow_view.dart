@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 
-// TODO export to package
 class IconShadowView extends Icon {
   const IconShadowView(super.icon,
       {super.key,

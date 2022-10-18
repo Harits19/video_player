@@ -25,7 +25,6 @@ class _StreamFileViewState extends State<StreamFileView> {
     final file = widget.file;
     if (file is Directory) {
       file.list().listen((event) {
-        print(event);
         listStreamFile.add(event);
         setState(() {});
       });

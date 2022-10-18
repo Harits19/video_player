@@ -31,8 +31,6 @@ class _VideoScreenState extends State<VideoScreen> {
   Timer? _timer;
   double _playbackSpeed = SharedPrefService.getPlaybackSpeed();
 
-  // TODO safe user setting to local storage
-  // TODO change logo
   // TODO upload to playstore
   // TODO fix issue subtitle not showing
 
@@ -97,7 +95,6 @@ class _VideoScreenState extends State<VideoScreen> {
             child: ValueListenableBuilder(
                 valueListenable: _controller,
                 builder: (context, videoVal, child) {
-                  print('caption ${videoVal.caption.toString()}');
                   return Stack(
                     children: [
                       SizedBox.expand(
@@ -109,9 +106,6 @@ class _VideoScreenState extends State<VideoScreen> {
                             child: VideoPlayer(_controller),
                           ),
                         ),
-                      ),
-                      ClosedCaption(
-                        text: 'caption ${videoVal.caption.text}',
                       ),
                       Positioned.fill(
                         child: AnimatedOpacity(

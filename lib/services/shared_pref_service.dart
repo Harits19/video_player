@@ -22,7 +22,6 @@ class SharedPrefService {
 }
 
 extension on SharedPreferences? {
-  @override
   double? getDoubleV2(_Key key) {
     return this?.getDouble(key.name);
   }
