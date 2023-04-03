@@ -8,7 +8,6 @@ import 'package:my_video_player/screens/views/playback_dialog_view.dart';
 import 'package:my_video_player/screens/views/top_gradient_view.dart';
 import 'package:my_video_player/screens/views/video_controller_view.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
-import 'package:my_video_player/extensions/double_extension.dart';
 import 'package:my_video_player/utils/orientation_util.dart';
 import 'package:my_video_player/utils/overlay_util.dart';
 import 'package:video_player/video_player.dart';
@@ -25,9 +24,10 @@ class _VideoScreenState extends State<VideoScreen> {
   late final _controller = VideoPlayerController.file(
     File(widget.file.path),
   );
+  late final pathFile = widget.file.path;
 
   bool _showOverlay = true;
-  Timer? _timer;
+  Timer? _overlayTimer, _savePlaybackTimer;
   var _playbackSpeed = SharedPrefService.getPlaybackSpeed();
 
   // TODO upload to playstore
@@ -38,18 +38,26 @@ class _VideoScreenState extends State<VideoScreen> {
     super.initState();
     OverlayUtil.hideStatusBar();
     _controller.initialize().then((value) => _initVideo());
-    _initTimer();
+    _initOverlayTimer();
+    _savePlaybackTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      SharedPrefService.saveVideoPlayback(
+        _controller.value.position,
+        pathFile,
+      );
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
     _controller.dispose();
-    _timer?.cancel();
+    _overlayTimer?.cancel();
+    _savePlaybackTimer?.cancel();
   }
 
   void _initVideo() async {
     await _controller.setPlaybackSpeed(_playbackSpeed);
+    await _controller.seekTo(SharedPrefService.getLastVideoPlayback(pathFile));
     final useLandscape = _controller.value.aspectRatio > 1;
     if (useLandscape) {
       await OrientationUtil.landscapeOrientation();
@@ -60,12 +68,12 @@ class _VideoScreenState extends State<VideoScreen> {
   void _resetTimer() {
     _showOverlay = true;
     setState(() {});
-    _timer?.cancel();
-    _initTimer();
+    _overlayTimer?.cancel();
+    _initOverlayTimer();
   }
 
-  void _initTimer() {
-    _timer = Timer(const Duration(seconds: 2), () {
+  void _initOverlayTimer() {
+    _overlayTimer = Timer(const Duration(seconds: 2), () {
       _showOverlay = false;
       setState(() {});
     });
@@ -148,51 +156,6 @@ class _VideoScreenState extends State<VideoScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showPlaybackDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(builder: (context, localState) {
-          return Dialog(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(
-                  height: KNumber.s16,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(
-                        KNumber.playbackDivisions.toInt(),
-                        (index) => Text(((index + 1) /
-                                KNumber.playbackDivisions *
-                                KNumber.maxPlaybackSpeed)
-                            .displayPlayback)),
-                  ),
-                ),
-                Slider(
-                    max: KNumber.maxPlaybackSpeed,
-                    value: _playbackSpeed,
-                    min: KNumber.minPlaybackSpeed,
-                    label: _playbackSpeed.displayPlayback,
-                    divisions: (KNumber.playbackDivisions - 1),
-                    onChanged: (val) async {
-                      _playbackSpeed = val;
-                      _controller.setPlaybackSpeed(_playbackSpeed);
-                      await SharedPrefService.savePlaybackSpeed(_playbackSpeed);
-                      localState(() {});
-                      setState(() {});
-                    }),
-              ],
-            ),
-          );
-        });
-      },
     );
   }
 }

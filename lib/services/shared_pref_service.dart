@@ -18,4 +18,20 @@ class SharedPrefService {
     return prefs?.getDoubleV2(SharePrefKeyEnum.playbackSpeed) ??
         KNumber.defaultPlaybackSpeed;
   }
+
+  static Future<void> saveVideoPlayback(Duration value, String pathFile) async {
+    await prefs?.setInt(
+      SharePrefKeyEnum.lastPlayback.name + pathFile,
+      value.inSeconds,
+    );
+  }
+
+  static Duration getLastVideoPlayback(String pathFile) {
+    final inSeconds =
+        prefs?.getInt(SharePrefKeyEnum.lastPlayback.name + pathFile) ?? 0;
+    final toDuration = Duration(
+      seconds: inSeconds,
+    );
+    return toDuration;
+  }
 }

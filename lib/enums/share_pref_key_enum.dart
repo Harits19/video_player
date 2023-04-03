@@ -1,3 +1,4 @@
 enum SharePrefKeyEnum {
   playbackSpeed,
+  lastPlayback,
 }
