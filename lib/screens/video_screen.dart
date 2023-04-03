@@ -2,14 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:my_video_player/screens/constans/color_constan.dart';
 import 'package:my_video_player/screens/constans/number_constan.dart';
-import 'package:my_video_player/screens/views/icon_shadow_view.dart';
-import 'package:my_video_player/screens/views/new_ink_well.dart';
+import 'package:my_video_player/screens/views/bottom_gradient_view.dart';
+import 'package:my_video_player/screens/views/top_gradient_view.dart';
+import 'package:my_video_player/screens/views/video_controller_view.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
-import 'package:my_video_player/utils/double_util.dart';
-import 'package:my_video_player/utils/duration_util.dart';
-import 'package:my_video_player/utils/file_util.dart';
+import 'package:my_video_player/extensions/double_extension.dart';
 import 'package:my_video_player/utils/orientation_util.dart';
 import 'package:my_video_player/utils/overlay_util.dart';
 import 'package:video_player/video_player.dart';
@@ -110,15 +108,15 @@ class _VideoScreenState extends State<VideoScreen> {
                       Positioned.fill(
                         child: AnimatedOpacity(
                           opacity: _showOverlay ? 1 : 0,
-                          duration: kAnimationDuration,
+                          duration: KNumber.kAnimationDuration,
                           child: Column(
                             children: [
-                              _TopGradientWidget(widget: widget),
-                              _VideoControllerWidget(
+                              TopGradientView(widget: widget),
+                              VideoControllerView(
                                 controller: _controller,
                                 videoVal: videoVal,
                               ),
-                              _BottomGradientWidget(
+                              BottomGradientView(
                                 videoValue: videoVal,
                                 controller: _controller,
                                 playbackSpeed: _playbackSpeed,
@@ -147,25 +145,25 @@ class _VideoScreenState extends State<VideoScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(
-                  height: k16,
+                  height: KNumber.s16,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(
-                        kPlaybackDivisions.toInt(),
-                        (index) => Text(displayPlayback((index + 1) /
-                            kPlaybackDivisions *
-                            kMaxPlaybackSpeed))),
+                        KNumber.playbackDivisions.toInt(),
+                        (index) => Text(((index + 1) /
+                            KNumber.playbackDivisions *
+                            KNumber.maxPlaybackSpeed).displayPlayback)),
                   ),
                 ),
                 Slider(
-                    max: kMaxPlaybackSpeed,
+                    max: KNumber.maxPlaybackSpeed,
                     value: _playbackSpeed,
-                    min: kMinPlaybackSpeed,
-                    label: displayPlayback(_playbackSpeed),
-                    divisions: (kPlaybackDivisions - 1),
+                    min: KNumber.minPlaybackSpeed,
+                    label: _playbackSpeed.displayPlayback,
+                    divisions: (KNumber.playbackDivisions - 1),
                     onChanged: (val) async {
                       _playbackSpeed = val;
                       _controller.setPlaybackSpeed(_playbackSpeed);
@@ -178,249 +176,6 @@ class _VideoScreenState extends State<VideoScreen> {
           );
         });
       },
-    );
-  }
-}
-
-class _BottomGradientWidget extends StatelessWidget {
-  const _BottomGradientWidget({
-    Key? key,
-    required this.playbackSpeed,
-    required this.onTapSeek,
-    required this.videoValue,
-    required this.controller,
-  }) : super(key: key);
-
-  final double playbackSpeed;
-  final VoidCallback onTapSeek;
-  final VideoPlayerValue videoValue;
-  final VideoPlayerController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final position = videoValue.position;
-    final duration = videoValue.duration;
-    return _GradientView(
-      directionTo: DirectionTo.top,
-      children: [
-        Text(
-          position.durationToTime(),
-          style: const TextStyle(
-            color: kColorPrimaryVideoScreen,
-          ),
-        ),
-        Expanded(
-          child: Slider(
-            value: position.inSeconds.toDouble(),
-            max: duration.inSeconds.toDouble(),
-            onChanged: (val) {
-              controller.seekTo(Duration(seconds: val.toInt()));
-            },
-          ),
-        ),
-        Text(
-          duration.durationToTime(),
-          style: const TextStyle(
-            color: kColorPrimaryVideoScreen,
-          ),
-        ),
-        const SizedBox(
-          width: kS8,
-        ),
-        NewInkWell(
-          onTap: onTapSeek,
-          child: Text(displayPlayback(playbackSpeed)),
-        ),
-        const SizedBox(
-          width: kS8,
-        ),
-        () {
-          final isLandscape =
-              MediaQuery.of(context).orientation == Orientation.landscape;
-          return NewInkWell(
-            child: RotatedBox(
-              quarterTurns: isLandscape ? 1 : 0,
-              child: const Icon(
-                Icons.rectangle_outlined,
-                color: kColorPrimaryVideoScreen,
-              ),
-            ),
-            onTap: () {
-              if (isLandscape) {
-                OrientationUtil.defaultOrientation();
-              } else {
-                OrientationUtil.landscapeOrientation();
-              }
-            },
-          );
-        }(),
-      ],
-    );
-  }
-}
-
-class _VideoControllerWidget extends StatelessWidget {
-  const _VideoControllerWidget({
-    Key? key,
-    required this.videoVal,
-    required this.controller,
-  }) : super(key: key);
-
-  final VideoPlayerController controller;
-  final VideoPlayerValue videoVal;
-
-  @override
-  Widget build(BuildContext context) {
-    final currentPosition = videoVal.position;
-    final isPlaying = videoVal.isPlaying;
-    final size = MediaQuery.of(context).size;
-    return Expanded(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _SeekWidget(
-            radius: size.height,
-            onDoubleTap: () {
-              controller.seekTo(currentPosition - kSeekDuration);
-            },
-            directionTo: DirectionTo.right,
-          ),
-          NewInkWell(
-            onTap: () {
-              isPlaying ? controller.pause() : controller.play();
-            },
-            customBorder: const CircleBorder(),
-            child: IconShadowView(
-              isPlaying ? Icons.pause : Icons.play_arrow,
-              color: Colors.white,
-              size: 56,
-            ),
-          ),
-          _SeekWidget(
-            radius: size.height,
-            onDoubleTap: () {
-              controller.seekTo(
-                currentPosition + kSeekDuration,
-              );
-            },
-            directionTo: DirectionTo.left,
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class _TopGradientWidget extends StatelessWidget {
-  const _TopGradientWidget({
-    Key? key,
-    required this.widget,
-  }) : super(key: key);
-
-  final VideoScreen widget;
-
-  @override
-  Widget build(BuildContext context) {
-    return _GradientView(
-      directionTo: DirectionTo.bottom,
-      children: [
-        Expanded(
-          child: Text(
-            FileUtil.getFileName(widget.file),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _GradientView extends StatelessWidget {
-  const _GradientView({
-    Key? key,
-    this.children = const [],
-    required this.directionTo,
-  })  : assert(
-          directionTo == DirectionTo.top || directionTo == DirectionTo.bottom,
-        ),
-        super(key: key);
-
-  final List<Widget> children;
-  final DirectionTo directionTo;
-
-  @override
-  Widget build(BuildContext context) {
-    const topCenter = Alignment.topCenter;
-    const bottomCenter = Alignment.bottomCenter;
-    return Container(
-      padding: const EdgeInsets.all(kS8),
-      height: k48,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: directionTo == DirectionTo.top ? bottomCenter : topCenter,
-          end: directionTo == DirectionTo.top ? topCenter : bottomCenter,
-          colors: <Color>[
-            Colors.black.withOpacity(0.3),
-            Colors.transparent,
-          ],
-        ),
-      ),
-      child: Row(
-        children: children,
-      ),
-    );
-  }
-}
-
-enum DirectionTo { left, right, top, bottom }
-
-class _SeekWidget extends StatelessWidget {
-  const _SeekWidget({
-    Key? key,
-    required this.onDoubleTap,
-    this.directionTo = DirectionTo.left,
-    required this.radius,
-  })  : assert(
-          directionTo == DirectionTo.left || directionTo == DirectionTo.right,
-        ),
-        super(key: key);
-
-  final VoidCallback onDoubleTap;
-  final DirectionTo directionTo;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: NewInkWell(
-        onDoubleTap: onDoubleTap,
-        borderRadius: () {
-          final radius = Radius.circular(this.radius);
-          final left = BorderRadius.horizontal(left: radius);
-          final right = BorderRadius.horizontal(right: radius);
-          if (directionTo == DirectionTo.left) {
-            return left;
-          }
-          if (directionTo == DirectionTo.right) {
-            return right;
-          }
-        }(),
-        child: Container(
-          alignment: Alignment.center,
-          height: double.infinity,
-          width: double.infinity,
-          child: Text(
-            '${kSeekDuration.inSeconds} seconds',
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

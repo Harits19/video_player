@@ -12,12 +12,12 @@ class SharedPrefService {
     prefs = await SharedPreferences.getInstance();
   }
 
-  static Future<void> savePlaybackSpeed(double playbackSpeed)async {
+  static Future<void> savePlaybackSpeed(double playbackSpeed) async {
     await prefs!.setDouble(_Key.kPlaybackSpeed.name, playbackSpeed);
   }
 
   static double getPlaybackSpeed() {
-    return prefs!.getDoubleV2(_Key.kPlaybackSpeed) ?? kDefaultPlaybackSpeed;
+    return prefs!.getDoubleV2(_Key.kPlaybackSpeed) ?? KNumber.defaultPlaybackSpeed;
   }
 }
 

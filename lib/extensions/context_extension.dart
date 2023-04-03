@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class NavUtil {
-  static void push(BuildContext context, Widget page) {
+extension BuildContextExtension on BuildContext {
+  void push(Widget page) {
     Navigator.push(
-      context,
+      this,
       MaterialPageRoute(builder: (context) => page),
     );
   }

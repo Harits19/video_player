@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class NewInkWell extends InkWell {
-  const NewInkWell({
+class InkWellView extends InkWell {
+  const InkWellView({
     super.key,
     super.child,
     super.onTap,
