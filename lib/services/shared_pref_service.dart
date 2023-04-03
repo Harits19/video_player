@@ -1,9 +1,7 @@
+import 'package:my_video_player/enums/share_pref_key_enum.dart';
+import 'package:my_video_player/extensions/share_pref_extension.dart';
 import 'package:my_video_player/screens/constans/number_constan.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-enum _Key {
-  kPlaybackSpeed,
-}
 
 class SharedPrefService {
   static SharedPreferences? prefs;
@@ -13,16 +11,11 @@ class SharedPrefService {
   }
 
   static Future<void> savePlaybackSpeed(double playbackSpeed) async {
-    await prefs!.setDouble(_Key.kPlaybackSpeed.name, playbackSpeed);
+    await prefs?.setDoubleV2(SharePrefKeyEnum.playbackSpeed, playbackSpeed);
   }
 
   static double getPlaybackSpeed() {
-    return prefs!.getDoubleV2(_Key.kPlaybackSpeed) ?? KNumber.defaultPlaybackSpeed;
-  }
-}
-
-extension on SharedPreferences? {
-  double? getDoubleV2(_Key key) {
-    return this?.getDouble(key.name);
+    return prefs?.getDoubleV2(SharePrefKeyEnum.playbackSpeed) ??
+        KNumber.defaultPlaybackSpeed;
   }
 }

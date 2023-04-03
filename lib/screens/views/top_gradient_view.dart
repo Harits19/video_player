@@ -3,7 +3,6 @@ import 'package:my_video_player/enums/direction_to_enum.dart';
 import 'package:my_video_player/extensions/file_system_extension.dart';
 import 'package:my_video_player/screens/video_screen.dart';
 import 'package:my_video_player/screens/views/gradient_view.dart';
-import 'package:my_video_player/utils/file_extension.dart';
 
 class TopGradientView extends StatelessWidget {
   const TopGradientView({

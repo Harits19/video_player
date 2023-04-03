@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:my_video_player/screens/constans/number_constan.dart';
 import 'package:my_video_player/screens/views/bottom_gradient_view.dart';
+import 'package:my_video_player/screens/views/playback_dialog_view.dart';
 import 'package:my_video_player/screens/views/top_gradient_view.dart';
 import 'package:my_video_player/screens/views/video_controller_view.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
@@ -27,7 +28,7 @@ class _VideoScreenState extends State<VideoScreen> {
 
   bool _showOverlay = true;
   Timer? _timer;
-  double _playbackSpeed = SharedPrefService.getPlaybackSpeed();
+  var _playbackSpeed = SharedPrefService.getPlaybackSpeed();
 
   // TODO upload to playstore
   // TODO fix issue subtitle not showing
@@ -120,7 +121,22 @@ class _VideoScreenState extends State<VideoScreen> {
                                 videoValue: videoVal,
                                 controller: _controller,
                                 playbackSpeed: _playbackSpeed,
-                                onTapSeek: _showPlaybackDialog,
+                                onTapSeek: () {
+                                  PlaybackDialogView.showPlaybackDialog(
+                                    context,
+                                    playbackSpeed: _playbackSpeed,
+                                    onChangedPlayback: (val) async {
+                                      _playbackSpeed = val;
+                                      _controller.setPlaybackSpeed(
+                                        _playbackSpeed,
+                                      );
+                                      await SharedPrefService.savePlaybackSpeed(
+                                        _playbackSpeed,
+                                      );
+                                      setState(() {});
+                                    },
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -154,8 +170,9 @@ class _VideoScreenState extends State<VideoScreen> {
                     children: List.generate(
                         KNumber.playbackDivisions.toInt(),
                         (index) => Text(((index + 1) /
-                            KNumber.playbackDivisions *
-                            KNumber.maxPlaybackSpeed).displayPlayback)),
+                                KNumber.playbackDivisions *
+                                KNumber.maxPlaybackSpeed)
+                            .displayPlayback)),
                   ),
                 ),
                 Slider(

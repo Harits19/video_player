@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:my_video_player/extensions/file_system_extension.dart';
+import 'package:my_video_player/extensions/string_extension.dart';
 import 'package:my_video_player/screens/video_screen.dart';
 import 'package:my_video_player/screens/views/stream_file_view.dart';
-import 'package:my_video_player/utils/file_extension.dart';
 import 'package:my_video_player/extensions/context_extension.dart';
 
 class ListOfFileView extends StatelessWidget {
@@ -34,7 +34,8 @@ class ListOfFileView extends StatelessWidget {
                 children: [
                   ...files.map(
                     (e) {
-                      if (FileUtil.isVideo(e.path) || e is Directory) {
+                      final isVideo = e.path.isVideo();
+                      if (isVideo || e is Directory) {
                         return InkWell(
                           child: ListTile(
                             title: Text(e.getFileName()),
@@ -42,7 +43,7 @@ class ListOfFileView extends StatelessWidget {
                           onTap: () {
                             if (e is Directory) {
                               context.push(StreamFileView(file: e));
-                            } else if (e is File && FileUtil.isVideo(e.path)) {
+                            } else if (e is File && isVideo) {
                               context.push(
                                 VideoScreen(file: e),
                               );
