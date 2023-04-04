@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_video_player/screens/home_screen.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
 
-// TODO create history minute has been played
+// TODO add subtitle
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

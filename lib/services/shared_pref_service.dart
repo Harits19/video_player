@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:my_video_player/enums/share_pref_key_enum.dart';
 import 'package:my_video_player/extensions/share_pref_extension.dart';
 import 'package:my_video_player/screens/constans/number_constan.dart';
@@ -19,16 +21,17 @@ class SharedPrefService {
         KNumber.defaultPlaybackSpeed;
   }
 
-  static Future<void> saveVideoPlayback(Duration value, String pathFile) async {
+  static Future<void> saveVideoPlayback(
+      Duration value, FileSystemEntity file) async {
     await prefs?.setInt(
-      SharePrefKeyEnum.lastPlayback.name + pathFile,
+      SharePrefKeyEnum.lastPlayback.name + file.path,
       value.inSeconds,
     );
   }
 
-  static Duration getLastVideoPlayback(String pathFile) {
+  static Duration getLastVideoPlayback(FileSystemEntity file) {
     final inSeconds =
-        prefs?.getInt(SharePrefKeyEnum.lastPlayback.name + pathFile) ?? 0;
+        prefs?.getInt(SharePrefKeyEnum.lastPlayback.name + file.path) ?? 0;
     final toDuration = Duration(
       seconds: inSeconds,
     );

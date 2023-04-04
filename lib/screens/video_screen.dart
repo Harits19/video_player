@@ -7,6 +7,7 @@ import 'package:my_video_player/screens/views/bottom_gradient_view.dart';
 import 'package:my_video_player/screens/views/playback_dialog_view.dart';
 import 'package:my_video_player/screens/views/top_gradient_view.dart';
 import 'package:my_video_player/screens/views/video_controller_view.dart';
+import 'package:my_video_player/screens/views/video_player_view.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
 import 'package:my_video_player/utils/orientation_util.dart';
 import 'package:my_video_player/utils/overlay_util.dart';
@@ -24,27 +25,24 @@ class _VideoScreenState extends State<VideoScreen> {
   late final _controller = VideoPlayerController.file(
     File(widget.file.path),
   );
-  late final pathFile = widget.file.path;
-
+  late final file = widget.file;
   bool _showOverlay = true;
   Timer? _overlayTimer, _savePlaybackTimer;
   var _playbackSpeed = SharedPrefService.getPlaybackSpeed();
-
-  // TODO upload to playstore
-  // TODO fix issue subtitle not showing
 
   @override
   void initState() {
     super.initState();
     OverlayUtil.hideStatusBar();
-    _controller.initialize().then((value) => _initVideo());
-    _initOverlayTimer();
-    _savePlaybackTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      SharedPrefService.saveVideoPlayback(
-        _controller.value.position,
-        pathFile,
-      );
+    _initVideo().then((value) {
+      _savePlaybackTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        SharedPrefService.saveVideoPlayback(
+          _controller.value.position,
+          file,
+        );
+      });
     });
+    _initOverlayTimer();
   }
 
   @override
@@ -55,14 +53,15 @@ class _VideoScreenState extends State<VideoScreen> {
     _savePlaybackTimer?.cancel();
   }
 
-  void _initVideo() async {
+  Future<void> _initVideo() async {
+    await _controller.initialize();
     await _controller.setPlaybackSpeed(_playbackSpeed);
-    await _controller.seekTo(SharedPrefService.getLastVideoPlayback(pathFile));
+    await _controller.seekTo(SharedPrefService.getLastVideoPlayback(file));
     final useLandscape = _controller.value.aspectRatio > 1;
     if (useLandscape) {
       await OrientationUtil.landscapeOrientation();
     }
-    _controller.play();
+    await _controller.play();
   }
 
   void _resetTimer() {
@@ -89,13 +88,6 @@ class _VideoScreenState extends State<VideoScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.black,
-        // floatingActionButton: FloatingActionButton(onPressed: () {
-        //   NavUtil.push(
-        //       context,
-        //       Scaffold(
-        //         body: VideoPlayer(_controller),
-        //       ));
-        // }),
         body: Center(
           child: Listener(
             onPointerDown: (_) => _resetTimer(),
@@ -105,14 +97,7 @@ class _VideoScreenState extends State<VideoScreen> {
                   return Stack(
                     children: [
                       SizedBox.expand(
-                        child: FittedBox(
-                          fit: BoxFit.contain,
-                          child: SizedBox(
-                            width: videoVal.size.width,
-                            height: videoVal.size.height,
-                            child: VideoPlayer(_controller),
-                          ),
-                        ),
+                        child: VideoPlayerView(controller: _controller),
                       ),
                       Positioned.fill(
                         child: AnimatedOpacity(
