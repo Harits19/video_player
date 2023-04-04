@@ -10,10 +10,10 @@ import 'package:my_video_player/screens/views/video_controller_view.dart';
 import 'package:my_video_player/screens/views/video_player_view.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
 import 'package:my_video_player/utils/orientation_util.dart';
-import 'package:my_video_player/utils/overlay_util.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoScreen extends StatefulWidget {
+  static const routeName = 'video-screen';
   const VideoScreen({Key? key, required this.file}) : super(key: key);
   final FileSystemEntity file;
 
@@ -22,7 +22,7 @@ class VideoScreen extends StatefulWidget {
 }
 
 class _VideoScreenState extends State<VideoScreen> {
-  late final _controller = VideoPlayerController.file(
+  late final videoPlayerController = VideoPlayerController.file(
     File(widget.file.path),
   );
   late final file = widget.file;
@@ -33,11 +33,11 @@ class _VideoScreenState extends State<VideoScreen> {
   @override
   void initState() {
     super.initState();
-    OverlayUtil.hideStatusBar();
+    WindowUtil.hideStatusBar();
     _initVideo().then((value) {
       _savePlaybackTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         SharedPrefService.saveVideoPlayback(
-          _controller.value.position,
+          videoPlayerController.value.position,
           file,
         );
       });
@@ -48,20 +48,21 @@ class _VideoScreenState extends State<VideoScreen> {
   @override
   void dispose() {
     super.dispose();
-    _controller.dispose();
+    videoPlayerController.dispose();
     _overlayTimer?.cancel();
     _savePlaybackTimer?.cancel();
   }
 
   Future<void> _initVideo() async {
-    await _controller.initialize();
-    await _controller.setPlaybackSpeed(_playbackSpeed);
-    await _controller.seekTo(SharedPrefService.getLastVideoPlayback(file));
-    final useLandscape = _controller.value.aspectRatio > 1;
+    await videoPlayerController.initialize();
+    await videoPlayerController.setPlaybackSpeed(_playbackSpeed);
+    await videoPlayerController
+        .seekTo(SharedPrefService.getLastVideoPlayback(file));
+    final useLandscape = videoPlayerController.value.aspectRatio > 1;
     if (useLandscape) {
-      await OrientationUtil.landscapeOrientation();
+      await WindowUtil.landscapeOrientation();
     }
-    await _controller.play();
+    await videoPlayerController.play();
   }
 
   void _resetTimer() {
@@ -82,8 +83,7 @@ class _VideoScreenState extends State<VideoScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        await OrientationUtil.defaultOrientation();
-        await OverlayUtil.defaultOverlay();
+        WindowUtil.backToDefault();
         return true;
       },
       child: Scaffold(
@@ -92,12 +92,14 @@ class _VideoScreenState extends State<VideoScreen> {
           child: Listener(
             onPointerDown: (_) => _resetTimer(),
             child: ValueListenableBuilder(
-                valueListenable: _controller,
+                valueListenable: videoPlayerController,
                 builder: (context, videoVal, child) {
                   return Stack(
                     children: [
                       SizedBox.expand(
-                        child: VideoPlayerView(controller: _controller),
+                        child: VideoPlayerView(
+                          controller: videoPlayerController,
+                        ),
                       ),
                       Positioned.fill(
                         child: AnimatedOpacity(
@@ -105,14 +107,17 @@ class _VideoScreenState extends State<VideoScreen> {
                           duration: KNumber.kAnimationDuration,
                           child: Column(
                             children: [
-                              TopGradientView(widget: widget),
+                              TopGradientView(
+                                widget: widget,
+                                videoPlayerController: videoPlayerController,
+                              ),
                               VideoControllerView(
-                                controller: _controller,
+                                controller: videoPlayerController,
                                 videoVal: videoVal,
                               ),
                               BottomGradientView(
                                 videoValue: videoVal,
-                                controller: _controller,
+                                controller: videoPlayerController,
                                 playbackSpeed: _playbackSpeed,
                                 onTapSeek: () {
                                   PlaybackDialogView.showPlaybackDialog(
@@ -120,7 +125,7 @@ class _VideoScreenState extends State<VideoScreen> {
                                     playbackSpeed: _playbackSpeed,
                                     onChangedPlayback: (val) async {
                                       _playbackSpeed = val;
-                                      _controller.setPlaybackSpeed(
+                                      videoPlayerController.setPlaybackSpeed(
                                         _playbackSpeed,
                                       );
                                       await SharedPrefService.savePlaybackSpeed(
@@ -134,7 +139,7 @@ class _VideoScreenState extends State<VideoScreen> {
                             ],
                           ),
                         ),
-                      )
+                      ),
                     ],
                   );
                 }),

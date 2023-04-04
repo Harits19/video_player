@@ -60,10 +60,17 @@ class _ThumbnailViewState extends State<ThumbnailView> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        context
-            .push(
-          VideoScreen(file: widget.file),
-        )
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+          builder: (_) {
+            return VideoScreen(
+              file: file,
+            );
+          },
+          settings: const RouteSettings(
+            name: VideoScreen.routeName,
+          ),
+        ))
             .then(
           (value) {
             updateLastPlayback();

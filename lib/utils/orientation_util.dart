@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-class OrientationUtil {
+class WindowUtil {
   static Future<void> defaultOrientation() async {
     await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
   }
@@ -10,5 +10,18 @@ class OrientationUtil {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+  }
+
+  static Future hideStatusBar() async {
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
+
+  static Future defaultOverlay() async {
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
+  static Future backToDefault() async {
+    await defaultOrientation();
+    await defaultOverlay();
   }
 }

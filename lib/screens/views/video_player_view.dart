@@ -12,12 +12,14 @@ class VideoPlayerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (controller.value.isInitialized) {
-      return FittedBox(
-        fit: BoxFit.contain,
-        child: SizedBox(
-          width: controller.value.size.width,
-          height: controller.value.size.height,
-          child: VideoPlayer(controller),
+      return Center(
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: SizedBox(
+            width: controller.value.size.width,
+            height: controller.value.size.height,
+            child: VideoPlayer(controller),
+          ),
         ),
       );
     }

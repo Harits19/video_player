@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_video_player/screens/home_screen.dart';
+import 'package:my_video_player/screens/video_screen.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
 
 // TODO add subtitle
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,9 @@ class MyApp extends StatelessWidget {
       title: 'My Video Player',
       themeMode: ThemeMode.system,
       darkTheme: ThemeData.dark(),
-      home: const HomeScreen(),
+      home:  HomeScreen(
+      ),
+      routes: {},
     );
   }
 }

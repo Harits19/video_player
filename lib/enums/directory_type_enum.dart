@@ -1,0 +1,5 @@
+
+
+enum DirectoryTypeEnum{
+  video, subtitle
+}

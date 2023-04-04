@@ -74,9 +74,9 @@ class BottomGradientView extends StatelessWidget {
             ),
             onTap: () {
               if (isLandscape) {
-                OrientationUtil.defaultOrientation();
+                WindowUtil.defaultOrientation();
               } else {
-                OrientationUtil.landscapeOrientation();
+                WindowUtil.landscapeOrientation();
               }
             },
           );
