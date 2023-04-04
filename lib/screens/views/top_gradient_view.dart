@@ -39,12 +39,14 @@ class TopGradientView extends StatelessWidget {
           ),
           onPressed: () {
             videoPlayerController.pause();
-            context.push(HomeScreen(
-              directoryTypeEnum: DirectoryTypeEnum.subtitle,
-              onSubtitleSelected: (subtitle) {
-                print(subtitle);
-              },
-            ));
+            context.push(
+              HomeScreen(
+                directoryTypeEnum: DirectoryTypeEnum.subtitle,
+                onSubtitleSelected: (subtitle) {
+                  print(subtitle);
+                },
+              ),
+            );
           },
         )
       ],
