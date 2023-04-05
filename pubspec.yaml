@@ -37,6 +37,7 @@ dependencies:
   path_provider: ^2.0.11
   permission_handler: ^10.1.0
   shared_preferences: ^2.0.15
+  subtitle_wrapper_package: ^2.1.1
   video_player: ^2.4.7
 
 dev_dependencies:

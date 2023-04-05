@@ -6,6 +6,7 @@ import 'package:my_video_player/extensions/file_system_extension.dart';
 import 'package:my_video_player/screens/home_screen.dart';
 import 'package:my_video_player/screens/video_screen.dart';
 import 'package:my_video_player/screens/views/gradient_view.dart';
+import 'package:my_video_player/services/subtitle_service.dart';
 import 'package:video_player/video_player.dart';
 
 class TopGradientView extends StatelessWidget {
@@ -13,10 +14,12 @@ class TopGradientView extends StatelessWidget {
     Key? key,
     required this.widget,
     required this.videoPlayerController,
+    required this.onAddSubtitle,
   }) : super(key: key);
 
   final VideoScreen widget;
   final VideoPlayerController videoPlayerController;
+  final ValueChanged<String> onAddSubtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +45,11 @@ class TopGradientView extends StatelessWidget {
             context.push(
               HomeScreen(
                 directoryTypeEnum: DirectoryTypeEnum.subtitle,
-                onSubtitleSelected: (subtitle) {
+                onSubtitleSelected: (subtitle) async {
                   print(subtitle);
+                  final result = await SubtitleService.addSubtitle(subtitle);
+                  print(result);
+                  onAddSubtitle(result);
                 },
               ),
             );

@@ -11,6 +11,7 @@ import 'package:my_video_player/screens/views/video_player_view.dart';
 import 'package:my_video_player/services/shared_pref_service.dart';
 import 'package:my_video_player/utils/orientation_util.dart';
 import 'package:video_player/video_player.dart';
+import 'package:subtitle_wrapper_package/subtitle_wrapper_package.dart';
 
 class VideoScreen extends StatefulWidget {
   static const routeName = 'video-screen';
@@ -29,6 +30,8 @@ class _VideoScreenState extends State<VideoScreen> {
   bool _showOverlay = true;
   Timer? _overlayTimer, _savePlaybackTimer;
   var _playbackSpeed = SharedPrefService.getPlaybackSpeed();
+
+  SubtitleController? subtitleController;
 
   @override
   void initState() {
@@ -81,6 +84,9 @@ class _VideoScreenState extends State<VideoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final videoPlayer = VideoPlayerView(
+      controller: videoPlayerController,
+    );
     return WillPopScope(
       onWillPop: () async {
         WindowUtil.backToDefault();
@@ -97,9 +103,17 @@ class _VideoScreenState extends State<VideoScreen> {
                   return Stack(
                     children: [
                       SizedBox.expand(
-                        child: VideoPlayerView(
-                          controller: videoPlayerController,
-                        ),
+                        child: subtitleController == null
+                            ? videoPlayer
+                            : SubtitleWrapper(
+                                subtitleController: subtitleController!,
+                                videoPlayerController: videoPlayerController,
+                                videoChild: videoPlayer,
+                                subtitleStyle: const SubtitleStyle(
+                                  textColor: Colors.white,
+                                  hasBorder: true,
+                                ),
+                              ),
                       ),
                       Positioned.fill(
                         child: AnimatedOpacity(
@@ -110,6 +124,13 @@ class _VideoScreenState extends State<VideoScreen> {
                               TopGradientView(
                                 widget: widget,
                                 videoPlayerController: videoPlayerController,
+                                onAddSubtitle: (val) {
+                                  subtitleController = SubtitleController(
+                                    subtitlesContent: val,
+                                    subtitleType: SubtitleType.srt,
+                                  );
+                                  setState(() {});
+                                },
                               ),
                               VideoControllerView(
                                 controller: videoPlayerController,
